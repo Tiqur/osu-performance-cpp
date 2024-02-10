@@ -1,4 +1,5 @@
 #include <math.h>
+#include <iostream>
 #include "Pos.cpp"
 
 // Convert radians to degrees
@@ -21,8 +22,8 @@ float getDistance(Pos pos1, Pos pos2) {
 // Uppercase represents angle measure
 float getAngleRadOfPos2(Pos pos1, Pos pos2, Pos pos3) {
   float a = getDistance(pos1, pos2);
-  float b = getDistance(pos2, pos3);
-  float c = getDistance(pos3, pos1);
+  float b = getDistance(pos3, pos1);
+  float c = getDistance(pos2, pos3);
 
   // Use law of cosines to get B
   float B = acosf32((powf32(a, 2) + powf32(c, 2) - powf32(b, 2)) / (2 * a * c));

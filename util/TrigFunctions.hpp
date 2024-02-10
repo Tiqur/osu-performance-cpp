@@ -1,4 +1,3 @@
-#include "Pos";
 float radToDeg(float rad);
 float degToRad(float deg);
 float getDistance(Pos pos1, Pos pos2);
