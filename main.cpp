@@ -23,13 +23,33 @@ int main(void) {
   }
 
 
-  for (int i = 2; i < 20; i++) {
+  // Display angles 
+  std::cout << "Angles:"<< std::endl;
+  for (int i = 2; i < 10; i++) {
     Pos pos1 = beatmap_objects[i-2].pos;
     Pos pos2 = beatmap_objects[i-1].pos;
     Pos pos3 = beatmap_objects[i].pos;
-    printf("%d %d, %d %d, %d %d >> ", pos1.x, pos1.y, pos2.x, pos2.y, pos3.x, pos3.y);
-    std::cout << radToDeg(getAngleRadOfPos2(pos1, pos2, pos3)) << std::endl;
-    //std::cout << getAngleRadOfPos2(pos1, pos2, pos3) << std::endl;
+    printf("%d %d %d >> %fdeg\n", i-1, i, i+1, radToDeg(getAngleRadOfPos2(pos1, pos2, pos3)));
+  }
+
+  std::cout << std::endl;
+  std::cout << "Distances:"<< std::endl;
+  // Display distances
+  for (int i = 1; i < 10; i++) {
+    Pos pos1 = beatmap_objects[i-1].pos;
+    Pos pos2 = beatmap_objects[i].pos;
+    printf("%d %d >> %fu\n", i, i+1, getDistance(pos1, pos2));
+  }
+  
+  std::cout << std::endl;
+  std::cout << "Average Speed:"<< std::endl;
+  // Display average speed between objects
+  for (int i = 1; i < 10; i++) {
+    HitObject ho1 = beatmap_objects[i-1];
+    HitObject ho2 = beatmap_objects[i];
+    float distance = getDistance(ho1.pos, ho2.pos);
+    int time = ho2.time - ho1.time;
+    printf("%d %d >> %f\n", i, i+1, distance / time);
   }
 
   std::cout << size << std::endl;
