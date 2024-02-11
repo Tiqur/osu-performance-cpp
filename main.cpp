@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include "util/Pos.cpp"
 #include "util/TrigFunctions.hpp"
@@ -15,6 +16,7 @@ typedef struct {
 int main(void) {
   int size = sizeof(beatmap_objects_raw) / (sizeof(int) * 3);
   HitObject* beatmap_objects = new HitObject[size];
+  float total_pp = 0;
 
   for (int i = 0; i < size; i++) {
     int* bo = beatmap_objects_raw[i];
@@ -22,39 +24,67 @@ int main(void) {
     beatmap_objects[i] = ho;
   }
 
-
   // Display angles 
+  float* angles = new float[size] {0};
   std::cout << "Angles:"<< std::endl;
-  for (int i = 2; i < 10; i++) {
+  for (int i = 2; i < size; i++) {
     Pos pos1 = beatmap_objects[i-2].pos;
     Pos pos2 = beatmap_objects[i-1].pos;
     Pos pos3 = beatmap_objects[i].pos;
-    printf("%d %d %d >> %fdeg\n", i-1, i, i+1, radToDeg(getAngleRadOfPos2(pos1, pos2, pos3)));
+    float angle = radToDeg(getAngleRadOfPos2(pos1, pos2, pos3));
+    angles[i] = angle;
+    printf("%d %d %d >> %fdeg\n", i-1, i, i+1, angle);
   }
 
-  std::cout << std::endl;
-  std::cout << "Distances:"<< std::endl;
   // Display distances
-  for (int i = 1; i < 10; i++) {
+  float* distances = new float[size] {0};
+  std::cout << std::endl << "Distances:"<< std::endl;
+  for (int i = 1; i < size; i++) {
     Pos pos1 = beatmap_objects[i-1].pos;
     Pos pos2 = beatmap_objects[i].pos;
-    printf("%d %d >> %fu\n", i, i+1, getDistance(pos1, pos2));
+    float distance = getDistance(pos1, pos2);
+    distances[i] = distance;
+    printf("%d %d >> %fu\n", i, i+1, distance);
   }
   
-  std::cout << std::endl;
-  std::cout << "Average Speed:"<< std::endl;
   // Display average speed between objects
-  for (int i = 1; i < 10; i++) {
+  std::cout << std::endl << "Average Speed:"<< std::endl;
+  float* average_speeds = new float[size] {0};
+  for (int i = 1; i < size; i++) {
     HitObject ho1 = beatmap_objects[i-1];
     HitObject ho2 = beatmap_objects[i];
     float distance = getDistance(ho1.pos, ho2.pos);
     int time = ho2.time - ho1.time;
-    printf("%d %d >> %f\n", i, i+1, distance / time);
+    float avg_speed = distance / time;
+    average_speeds[i] = avg_speed;
+    printf("%d %d >> %f\n", i, i+1, avg_speed);
   }
 
-  std::cout << size << std::endl;
+  // Sort arrays for weighting
+  std::sort(angles, angles + size);
+  std::sort(distances, distances + size);
+  std::sort(average_speeds, average_speeds + size);
+
+
+  for (int i = 0; i < size; i++) {
+    std::cout << "Angle: " << angles[i] << std::endl;
+    std::cout << "Distance: " << distances[i] << std::endl;
+    std::cout << "Average Speed: " << average_speeds[i] << std::endl;
+  }
+
+
 
   // Free allocatead memory
   delete[] beatmap_objects;
   return 0;
 }
+
+
+// Sort then weight all values by ratio determined by song length?
+// This way the dif spike will be worth more than the rest of the map AND a long, easy map won't be worth 1000pp.
+// Example: 
+// CONST = 0.95
+// ^ This should be determined by song length because if a map is longer, there is more chance for a lot of higher values compared to a shorter map.
+// So a short map should have a larger constant than long maps
+// n = index in arr
+// total_pp = value * CONST^(n)
